@@ -28,6 +28,15 @@ DEFAULT_PORT="${PORT:-8000}"
 LOG_FILE="${LOG_FILE:-/tmp/faultmaven-server.log}"
 PID_FILE="${PID_FILE:-/tmp/faultmaven-server.pid}"
 
+# Load SERVER_HOST from .env for display purposes
+if [ -f ".env" ]; then
+    # Extract SERVER_HOST, remove comments and whitespace
+    SERVER_HOST_DISPLAY=$(grep "^SERVER_HOST=" .env 2>/dev/null | cut -d'=' -f2 | cut -d'#' -f1 | tr -d ' ' || echo "localhost")
+else
+    SERVER_HOST_DISPLAY="localhost"
+fi
+[ -z "$SERVER_HOST_DISPLAY" ] && SERVER_HOST_DISPLAY="localhost"
+
 # Determine if running in Docker
 if [ -f /.dockerenv ]; then
     IN_DOCKER=true
@@ -163,8 +172,11 @@ fi
 # Start FaultMaven
 echo ""
 echo "🏃 Starting FaultMaven server..."
-echo "🌐 Server will be available at http://localhost:$DEFAULT_PORT"
-echo "📚 API documentation at http://localhost:$DEFAULT_PORT/docs"
+echo "🌐 Server will be available at http://$SERVER_HOST_DISPLAY:$DEFAULT_PORT"
+echo "📚 API documentation at http://$SERVER_HOST_DISPLAY:$DEFAULT_PORT/docs"
+if [ "$DEFAULT_HOST" = "0.0.0.0" ] && [ "$SERVER_HOST_DISPLAY" = "localhost" ]; then
+    echo "💡 Server is binding to 0.0.0.0 - accessible from network. Set SERVER_HOST in .env for remote access display."
+fi
 echo ""
 
 if [ "$BACKGROUND" = true ]; then
