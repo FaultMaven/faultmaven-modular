@@ -23,6 +23,7 @@ dependencies = [
     "uvicorn[standard]>=0.27.0",
     "pydantic>=2.6.0",
     "pydantic-settings>=2.1.0",
+    "email-validator>=2.1.0",
 
     # Database
     "sqlalchemy>=2.0.25",
@@ -42,9 +43,6 @@ dependencies = [
 
     # Vector Databases
     "chromadb>=0.4.22",
-
-    # Embeddings
-    "sentence-transformers>=2.3.1",
 
     # File Storage
     "aioboto3>=12.3.0",  # S3 support
@@ -142,7 +140,6 @@ plugins = ["pydantic.mypy"]
 [[tool.mypy.overrides]]
 module = [
     "chromadb.*",
-    "sentence_transformers.*",
     "pypdf.*",
     "docx.*",
 ]
