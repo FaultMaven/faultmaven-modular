@@ -68,7 +68,7 @@ services:
     ports:
       - "3000:80"
     environment:
-      - VITE_API_URL=http://localhost:8000
+      - VITE_API_URL=http://${SERVER_HOST:-localhost}:8000
     restart: unless-stopped
     depends_on:
       faultmaven-backend:

@@ -51,7 +51,7 @@ Database migrations run automatically on startup. No manual initialization neede
 - **API Docs**: <http://localhost:8090/docs> - Interactive API documentation
 - **Health Check**: <http://localhost:8090/health> - Service health status
 
-> **All deployment options:** See [deploy/](deploy/) for Docker, local, and Kubernetes deployment guides
+> **All deployment options:** See [deploy/](deploy/) for Docker and local development guides
 > **Troubleshooting:** See [deploy/troubleshooting/](deploy/troubleshooting/) for common issues and solutions
 
 ### Option 2: Local Development

@@ -8,7 +8,6 @@ This directory contains all deployment configurations and guides for FaultMaven.
 deploy/
 ├── docker/              # Docker-based deployment (recommended)
 ├── local/               # Local development from source
-├── kubernetes/          # Kubernetes/Helm deployment (coming soon)
 └── troubleshooting/     # Deployment troubleshooting guides
 ```
 
@@ -60,25 +59,6 @@ Run FaultMaven from source code for active development:
 
 ---
 
-## ☸️ Kubernetes Deployment
-
-**Location:** [kubernetes/](kubernetes/)
-**Status:** 🚧 Coming soon
-
-Production-grade orchestrated deployment:
-
-- Helm charts for easy installation
-- Horizontal scaling support
-- Production-ready configurations
-- Monitoring and observability built-in
-
-**Best for:**
-- Enterprise production deployments
-- Multi-node clusters
-- High availability requirements
-
----
-
 ## 🛠️ Troubleshooting
 
 **Location:** [troubleshooting/](troubleshooting/)
@@ -118,7 +98,6 @@ Comprehensive troubleshooting guides for common deployment issues:
 |--------|------------|----------|--------|
 | **Docker** | ⭐ Easy | Production, local testing | ✅ Ready |
 | **Local** | ⭐⭐ Medium | Development, debugging | ✅ Ready |
-| **Kubernetes** | ⭐⭐⭐ Advanced | Enterprise, HA | 🚧 Planned |
 
 ---
 
@@ -127,7 +106,6 @@ Comprehensive troubleshooting guides for common deployment issues:
 Deployment improvements welcome!
 
 - Found a better Docker optimization? PR it!
-- Have Kubernetes experience? Help us build the Helm chart!
 - Wrote a deployment guide for your platform? Share it!
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
