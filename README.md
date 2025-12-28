@@ -51,7 +51,10 @@ Database migrations run automatically on startup. No manual initialization neede
 - **API Docs**: <http://localhost:8090/docs> - Interactive API documentation
 - **Health Check**: <http://localhost:8090/health> - Service health status
 
+> **Remote Access**: If deploying to a remote server, replace `localhost` with your server's IP address or domain name (e.g., `http://192.168.1.100:8000`). Configure `SERVER_HOST` in your `.env` file for remote dashboard access.
+>
 > **All deployment options:** See [deploy/](deploy/) for Docker and local development guides
+>
 > **Troubleshooting:** See [deploy/troubleshooting/](deploy/troubleshooting/) for common issues and solutions
 
 ### Option 2: Local Development
