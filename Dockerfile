@@ -16,17 +16,15 @@ RUN apt-get update && apt-get install -y \
 # Set work directory
 WORKDIR /app
 
-# Copy project files for dependency installation
+# Copy project files for package installation
 COPY pyproject.toml .
 COPY README.md .
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -e .
-
-# Copy application code
 COPY src/ ./src/
 COPY alembic/ ./alembic/
 COPY alembic.ini .
+
+# Install Python dependencies (regular install, not editable)
+RUN pip install --no-cache-dir .
 
 # Create data directory
 RUN mkdir -p /app/data
