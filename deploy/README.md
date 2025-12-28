@@ -44,7 +44,7 @@ The easiest way to deploy FaultMaven. Two modes available:
 ## 💻 Local Development
 
 **Location:** [local/](local/)
-**Status:** 🚧 Coming soon
+**Status:** ✅ Ready
 
 Run FaultMaven from source code for active development:
 
@@ -117,7 +117,7 @@ Comprehensive troubleshooting guides for common deployment issues:
 | Method | Complexity | Use Case | Status |
 |--------|------------|----------|--------|
 | **Docker** | ⭐ Easy | Production, local testing | ✅ Ready |
-| **Local** | ⭐⭐ Medium | Development, debugging | 🚧 Coming |
+| **Local** | ⭐⭐ Medium | Development, debugging | ✅ Ready |
 | **Kubernetes** | ⭐⭐⭐ Advanced | Enterprise, HA | 🚧 Planned |
 
 ---

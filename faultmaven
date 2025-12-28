@@ -26,7 +26,7 @@ REQUIRED_COMMANDS=("docker" "curl")
 
 # Deployment modes
 PRODUCTION_MODE=false
-COMPOSE_FILE="docker-compose.yml"
+DEPLOY_DIR="deploy/docker"
 
 # CLI options
 NO_COLOR=false
@@ -41,10 +41,19 @@ fi
 
 # Docker compose wrapper
 dc() {
+    # Use root symlinks if they exist (standard), otherwise use deploy/ path
     if [ "$PRODUCTION_MODE" = true ]; then
-        docker compose -f docker-compose.prod.yml "$@"
+        if [ -f docker-compose.prod.yml ]; then
+            docker compose -f docker-compose.prod.yml "$@"
+        else
+            docker compose -f "$DEPLOY_DIR/docker-compose.prod.yml" "$@"
+        fi
     else
-        docker compose "$@"
+        if [ -f docker-compose.yml ]; then
+            docker compose "$@"
+        else
+            docker compose -f "$DEPLOY_DIR/docker-compose.yml" "$@"
+        fi
     fi
 }
 
@@ -205,9 +214,9 @@ check_env_file() {
 }
 
 check_and_create_override() {
-    if [ -f docker-compose.override.yml.example ] && [ ! -f docker-compose.override.yml ]; then
-        print_info "Override example found but not used"
-        echo "  To customize ports or resources: cp docker-compose.override.yml.example docker-compose.override.yml"
+    if [ -f "$DEPLOY_DIR/examples/resource-limits.yml" ] && [ ! -f docker-compose.override.yml ]; then
+        print_info "Resource limit examples available in deploy/docker/examples/"
+        echo "  To customize: cp deploy/docker/examples/resource-limits.yml docker-compose.override.yml"
     fi
 }
 
