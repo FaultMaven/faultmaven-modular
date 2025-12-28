@@ -30,16 +30,19 @@ def validate_llm_configuration() -> None:
             "  - openai\n"
             "  - anthropic\n"
             "  - groq\n"
+            "  - gemini\n"
+            "  - fireworks\n"
+            "  - openrouter\n"
             "  - ollama\n\n"
             "Example:\n"
-            "  LLM_PROVIDER=openai\n"
-            "  OPENAI_API_KEY=sk-..."
+            "  LLM_PROVIDER=groq\n"
+            "  GROQ_API_KEY=gsk_..."
         )
 
     # Validate provider-specific configuration
     if provider == "openai":
         api_key = os.getenv("OPENAI_API_KEY", "").strip()
-        if not api_key or api_key == "your-openai-api-key-here":
+        if not api_key or api_key.startswith("your-") or api_key == "sk-...":
             raise ConfigurationError(
                 "LLM_PROVIDER is set to 'openai' but OPENAI_API_KEY is not configured.\n\n"
                 "Please add your OpenAI API key to .env:\n"
@@ -49,7 +52,7 @@ def validate_llm_configuration() -> None:
 
     elif provider == "anthropic":
         api_key = os.getenv("ANTHROPIC_API_KEY", "").strip()
-        if not api_key or api_key == "your-anthropic-api-key-here":
+        if not api_key or api_key.startswith("your-") or api_key == "sk-ant-...":
             raise ConfigurationError(
                 "LLM_PROVIDER is set to 'anthropic' but ANTHROPIC_API_KEY is not configured.\n\n"
                 "Please add your Anthropic API key to .env:\n"
@@ -59,12 +62,42 @@ def validate_llm_configuration() -> None:
 
     elif provider == "groq":
         api_key = os.getenv("GROQ_API_KEY", "").strip()
-        if not api_key:
+        if not api_key or api_key == "gsk_...":
             raise ConfigurationError(
                 "LLM_PROVIDER is set to 'groq' but GROQ_API_KEY is not configured.\n\n"
                 "Please add your Groq API key to .env:\n"
                 "  GROQ_API_KEY=gsk_...\n\n"
                 "Get your API key at: https://console.groq.com/ (FREE tier available!)"
+            )
+
+    elif provider == "gemini":
+        api_key = os.getenv("GEMINI_API_KEY", "").strip()
+        if not api_key or api_key == "...":
+            raise ConfigurationError(
+                "LLM_PROVIDER is set to 'gemini' but GEMINI_API_KEY is not configured.\n\n"
+                "Please add your Gemini API key to .env:\n"
+                "  GEMINI_API_KEY=...\n\n"
+                "Get your API key at: https://makersuite.google.com/app/apikey"
+            )
+
+    elif provider == "fireworks":
+        api_key = os.getenv("FIREWORKS_API_KEY", "").strip()
+        if not api_key or api_key == "...":
+            raise ConfigurationError(
+                "LLM_PROVIDER is set to 'fireworks' but FIREWORKS_API_KEY is not configured.\n\n"
+                "Please add your Fireworks API key to .env:\n"
+                "  FIREWORKS_API_KEY=...\n\n"
+                "Get your API key at: https://fireworks.ai/api-keys"
+            )
+
+    elif provider == "openrouter":
+        api_key = os.getenv("OPENROUTER_API_KEY", "").strip()
+        if not api_key or api_key == "sk-or-...":
+            raise ConfigurationError(
+                "LLM_PROVIDER is set to 'openrouter' but OPENROUTER_API_KEY is not configured.\n\n"
+                "Please add your OpenRouter API key to .env:\n"
+                "  OPENROUTER_API_KEY=sk-or-...\n\n"
+                "Get your API key at: https://openrouter.ai/keys"
             )
 
     elif provider == "ollama":
@@ -85,6 +118,9 @@ def validate_llm_configuration() -> None:
             "  - openai\n"
             "  - anthropic\n"
             "  - groq\n"
+            "  - gemini\n"
+            "  - fireworks\n"
+            "  - openrouter\n"
             "  - ollama\n\n"
             "Please update your .env file."
         )
