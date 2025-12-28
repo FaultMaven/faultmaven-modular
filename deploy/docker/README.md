@@ -176,18 +176,19 @@ To access FaultMaven from other machines on your network:
 
 1. **Set SERVER_HOST in .env:**
    ```env
-   SERVER_HOST=192.168.1.100  # Your machine's IP
+   SERVER_HOST=192.168.1.100  # Your machine's IP address
    ```
 
-2. **Update CORS_ORIGINS:**
-   ```env
-   CORS_ORIGINS=http://192.168.1.100:3000,http://192.168.1.100:8090
-   ```
-
-3. **Restart:**
+2. **Restart:**
    ```bash
    ./faultmaven restart
    ```
+
+3. **Access from other machines:**
+   - **Development Mode:** `http://192.168.1.100:3000` (dashboard) and `http://192.168.1.100:8000` (API)
+   - **Production Mode:** `http://192.168.1.100:8090` (unified)
+
+> **Note:** CORS is configured to allow all origins by default for development convenience. For production, consider restricting CORS in `src/faultmaven/app.py`.
 
 ---
 
