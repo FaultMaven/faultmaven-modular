@@ -28,6 +28,7 @@ from faultmaven.modules.report.router import router as report_router
 
 from faultmaven.providers.core import CoreLLMProvider, CoreDataProvider, CoreFileProvider
 from faultmaven.providers.vectors.chromadb import ChromaDBProvider
+from faultmaven.config import validate_required_configuration, ConfigurationError
 
 
 logger = logging.getLogger(__name__)
@@ -42,6 +43,19 @@ async def lifespan(app: FastAPI):
     This prevents "First User Penalty" and ensures proper health checks.
     """
     logger.info("🚀 Starting FaultMaven application...")
+
+    # ==========================================
+    # STARTUP: Validate configuration first
+    # ==========================================
+
+    try:
+        # Validate required configuration before initializing any providers
+        logger.info("Validating configuration...")
+        validate_required_configuration()
+        logger.info("✅ Configuration validated")
+    except ConfigurationError:
+        # Error message already printed by validate_required_configuration()
+        raise RuntimeError("Configuration validation failed - see error above")
 
     # ==========================================
     # STARTUP: Initialize heavy resources
