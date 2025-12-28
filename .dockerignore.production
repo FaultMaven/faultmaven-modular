@@ -1,0 +1,73 @@
+# ==============================================================================
+# Production Build Docker Ignore
+# ==============================================================================
+# This is a MINIMAL .dockerignore for production builds.
+# We need to include dashboard/ and README.md for the multi-stage build.
+# ==============================================================================
+
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Virtual environments (we install fresh in Dockerfile)
+.venv/
+venv/
+ENV/
+env/
+
+# Git and IDE
+.git/
+.github/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Data (runtime data, not needed in image build)
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Tests (not needed in production image)
+tests/
+test_*.py
+
+# CI/CD files
+.gitlab-ci.yml
+.travis.yml
+Jenkinsfile
+
+# Docker files (don't copy docker files into image)
+docker-compose*.yml
+Dockerfile
+Dockerfile.production
+.dockerignore
+.dockerignore.production
+
+# Scripts (utility scripts not needed in image)
+scripts/
+
+# IDE and project files
+.claude/
+
+# Documentation (except README.md which is needed for pip install)
+docs/
+CHANGELOG.md
+LICENSE
+*.md
+!README.md
+
+# Dashboard node_modules and build artifacts (we build fresh)
+dashboard/node_modules/
+dashboard/dist/
+dashboard/.vite/
+dashboard/coverage/

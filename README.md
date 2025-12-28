@@ -19,7 +19,7 @@ Deploy FaultMaven Core locally with Docker in 4 simple steps.
 ### Prerequisites
 
 - **Docker & Docker Compose** installed
-- **LLM API Key** (OpenAI, Anthropic, or other [supported providers](#supported-llm-providers))
+- **LLM API Key** (OpenAI, Anthropic, or other [supported providers](#4-multi-provider-llm-support))
 
 ### Option 1: Docker (Recommended)
 
@@ -34,16 +34,22 @@ cp .env.example .env
 
 # 3. Start the platform
 docker compose up -d
-
-# 4. Initialize database (first time only)
-docker compose exec faultmaven-backend alembic upgrade head
 ```
 
-**Access Points:**
-- **Dashboard**: http://localhost:3000 - Knowledge base management UI
-- **API**: http://localhost:8000 - Backend REST API
-- **API Docs**: http://localhost:8000/docs - Interactive API documentation
-- **Health Check**: http://localhost:8000/health - Service health status
+Database migrations run automatically on startup. No manual initialization needed!
+
+**Access Points (Development Mode):**
+
+- **Dashboard**: <http://localhost:3000> - Knowledge base management UI
+- **API**: <http://localhost:8000> - Backend REST API
+- **API Docs**: <http://localhost:8000/docs> - Interactive API documentation
+- **Health Check**: <http://localhost:8000/health> - Service health status
+
+**Access Points (Production Mode):**
+
+- **Unified Application**: <http://localhost:8090> - Single port for both API and Dashboard
+- **API Docs**: <http://localhost:8090/docs> - Interactive API documentation
+- **Health Check**: <http://localhost:8090/health> - Service health status
 
 > **Production deployment?** See [Deployment Guide](docs/operations/deployment.md)
 > **Contributing or local development?** See [Development Setup](docs/development/setup.md)
@@ -247,95 +253,31 @@ See [Development Setup](docs/development/setup.md) for:
 
 ### Environment Variables
 
-```env
-# Database
-DATABASE_URL=sqlite+aiosqlite:///./data/faultmaven.db
+FaultMaven uses environment variables for configuration. Create a `.env` file from the template:
 
-# LLM Provider (choose one)
-LLM_PROVIDER=openai
-OPENAI_API_KEY=sk-...
-
-# Redis (sessions/cache)
-REDIS_HOST=localhost
-REDIS_PORT=6379
-
-# ChromaDB (vectors)
-CHROMA_HOST=localhost
-CHROMA_PORT=8000
-
-# Session Configuration
-SESSION_TIMEOUT_MINUTES=60  # 60-480 range
+```bash
+cp .env.example .env
+# Edit .env and add your API keys
 ```
 
-### Supported LLM Providers
+**Key configuration areas:**
 
-```env
-# Fireworks AI (recommended)
-LLM_PROVIDER=fireworks
-FIREWORKS_API_KEY=fw_...
+- **LLM Providers** - OpenAI, Anthropic, Groq, Ollama (see [Multi-Provider LLM Support](#4-multi-provider-llm-support))
+- **Database** - SQLite (dev) or PostgreSQL (production)
+- **Session Management** - Timeout, cleanup intervals, memory limits
+- **File Upload** - Size limits, allowed MIME types
+- **Vector Search** - ChromaDB or Pinecone
 
-# OpenAI
-LLM_PROVIDER=openai
-OPENAI_API_KEY=sk-...
-
-# Anthropic
-LLM_PROVIDER=anthropic
-ANTHROPIC_API_KEY=sk-ant-...
-
-# Google Gemini
-LLM_PROVIDER=google
-GEMINI_API_KEY=...
-
-# Local (Ollama/vLLM)
-LLM_PROVIDER=ollama
-LOCAL_LLM_URL=http://localhost:11434
-```
-
-See [.env.example](.env.example) for all configuration options.
+See [.env.example](.env.example) for complete configuration options with detailed comments and examples.
 
 ---
 
 ## Deployment
 
-### Development (SQLite)
+For detailed deployment instructions, see:
 
-```bash
-# Quick start for development
-docker-compose up -d
-uvicorn faultmaven.app:app --reload --port 8000
-```
-
-### Production (PostgreSQL)
-
-```bash
-# Update .env
-DATABASE_URL=postgresql+asyncpg://user:pass@localhost/faultmaven
-
-# Run with Gunicorn
-gunicorn faultmaven.app:app -w 4 -k uvicorn.workers.UvicornWorker
-```
-
-See [Deployment Guide](docs/operations/deployment.md) for production deployment guide.
-
----
-
-## Migration History
-
-FaultMaven evolved through three architectural phases:
-
-1. **Original Monolith** (FaultMaven-Mono) - Feature-complete reference implementation
-2. **Microservices** (2024) - Split into 8 independent services
-3. **Modular Monolith** (Current) - Consolidated with improved architecture
-
-**Current Status**: Production-ready modular monolith with 80% investigation framework integration
-
-**Why we moved back to a monolith:**
-- Operational complexity of 8 microservices outweighed benefits for our use case
-- Single deployable unit simplifies development and deployment
-- Modular design maintains clear boundaries without microservices overhead
-- Better developer experience and faster iteration
-
-For detailed comparison: See [investigation-framework-status.md](docs/working/investigation-framework-status.md)
+- **[Deployment Guide](docs/operations/deployment.md)** - Production deployment with Docker, Kubernetes, or manual setup
+- **[Development Setup](docs/development/setup.md)** - Local development environment setup
 
 ---
 

@@ -68,12 +68,16 @@ COPY alembic.ini ./
 # Place in static directory for FastAPI to serve
 COPY --from=dashboard-builder /build/dashboard/dist /app/static
 
+# Copy entrypoint script
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+
 # Create data directories
 RUN mkdir -p /app/data/files /app/data/chromadb
 
 # Create non-root user for security
 RUN useradd --create-home --shell /bin/bash faultmaven && \
-    chown -R faultmaven:faultmaven /app
+    chown -R faultmaven:faultmaven /app && \
+    chmod +x /app/docker-entrypoint.sh
 USER faultmaven
 
 # Expose unified port
@@ -82,6 +86,9 @@ EXPOSE 8090
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8090/health || exit 1
+
+# Set entrypoint to run migrations before starting app
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
 # Run the unified application
 # FastAPI will serve both API endpoints and static dashboard files
