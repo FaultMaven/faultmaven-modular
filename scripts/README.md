@@ -1,6 +1,20 @@
-# FaultMaven Operational Scripts
+# FaultMaven Development Scripts
 
-This directory contains operational scripts for managing the FaultMaven modular monolith. These scripts have been adapted from the legacy FaultMaven-Mono repository and updated to work with the current pyproject.toml-based structure.
+This directory contains scripts for **local development** - running FaultMaven from source code on your machine. These scripts have been adapted from the legacy FaultMaven-Mono repository and updated for the modular monolith architecture.
+
+> **Note**: For Docker-based deployment, use the `./faultmaven` CLI wrapper in the project root. See [deploy/docker/README.md](../deploy/docker/README.md) for Docker deployment.
+
+**When to use these scripts**:
+
+- ✅ Local development from source code
+- ✅ Contributing to FaultMaven
+- ✅ Debugging and testing changes
+- ✅ Running tests with coverage
+
+**When NOT to use these scripts**:
+
+- ❌ Docker deployment (use `./faultmaven start` instead)
+- ❌ Production deployment (use Docker or Kubernetes)
 
 ## Quick Reference
 

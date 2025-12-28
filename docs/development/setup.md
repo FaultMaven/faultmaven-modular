@@ -106,12 +106,30 @@ python -m faultmaven.main
 
 ### 6. Run FaultMaven
 
+**Using Development Scripts (Recommended)**:
+
+```bash
+# Start server in foreground (Ctrl+C to stop)
+./scripts/start.sh
+
+# Or start in background
+./scripts/start.sh --background
+
+# View logs in real-time
+./scripts/logs.sh -f
+
+# Run tests
+./scripts/test.sh
+
+# Stop server (if running in background)
+./scripts/stop.sh
+```
+
+**Direct Command (Alternative)**:
+
 ```bash
 # Development mode (auto-reload)
 uvicorn faultmaven.app:app --reload --port 8000
-
-# Or use the provided script
-python -m faultmaven.main
 ```
 
 **Access Points**:
@@ -119,6 +137,8 @@ python -m faultmaven.main
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 - Health Check: http://localhost:8000/health
+
+> **Script Documentation**: See [scripts/README.md](../../scripts/README.md) for detailed usage of all development scripts
 
 ---
 
@@ -257,6 +277,30 @@ from faultmaven.modules.mymodule.models import MyModel
 
 ### Running Tests
 
+**Using Test Script (Recommended)**:
+
+```bash
+# Run all tests
+./scripts/test.sh
+
+# With coverage report
+./scripts/test.sh -c
+
+# Only unit tests
+./scripts/test.sh -m unit
+
+# Specific test by keyword
+./scripts/test.sh -k test_auth
+
+# Verbose with HTML coverage
+./scripts/test.sh -v -c --html
+
+# Parallel execution (faster)
+./scripts/test.sh -n auto
+```
+
+**Direct pytest (Alternative)**:
+
 ```bash
 # All tests
 pytest
@@ -264,15 +308,11 @@ pytest
 # Specific module
 pytest tests/unit/modules/case/
 
-# Specific test file
-pytest tests/unit/modules/case/test_service.py
-
 # With coverage
 pytest --cov=faultmaven tests/
-
-# Watch mode (requires pytest-watch)
-ptw tests/
 ```
+
+> **Script Documentation**: See [scripts/README.md](../../scripts/README.md#-testsh---test-runner-script) for all testing options
 
 ### Test Structure
 
