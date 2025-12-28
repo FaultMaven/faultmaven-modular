@@ -1,0 +1,88 @@
+# ==============================================================================
+# FaultMaven Production Dockerfile (Multi-Stage Build)
+# ==============================================================================
+# This Dockerfile creates a single unified container that serves both:
+# - Backend API (FastAPI/Python)
+# - Frontend Dashboard (React/TypeScript)
+#
+# Architecture: 2 build stages → 1 production container
+# ==============================================================================
+
+# ==============================================================================
+# Stage 1: Build Dashboard (Frontend)
+# ==============================================================================
+FROM node:20-alpine AS dashboard-builder
+
+WORKDIR /build/dashboard
+
+# Install pnpm
+RUN npm install -g pnpm@9
+
+# Copy package files for dependency installation
+COPY ./dashboard/package.json ./dashboard/pnpm-lock.yaml ./
+
+# Install dependencies (with frozen lockfile for reproducibility)
+RUN pnpm install --frozen-lockfile
+
+# Copy dashboard source code
+COPY ./dashboard ./
+
+# Build production assets
+# Output: /build/dashboard/dist/
+RUN pnpm build
+
+# ==============================================================================
+# Stage 2: Build Production Python Image
+# ==============================================================================
+FROM python:3.11-slim
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    PORT=8090
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set work directory
+WORKDIR /app
+
+# Copy Python project files
+COPY pyproject.toml README.md ./
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -e .
+
+# Copy backend application code
+COPY src/ ./src/
+COPY alembic/ ./alembic/
+COPY alembic.ini ./
+
+# Copy dashboard build artifacts from Stage 1
+# Place in static directory for FastAPI to serve
+COPY --from=dashboard-builder /build/dashboard/dist /app/static
+
+# Create data directories
+RUN mkdir -p /app/data/files /app/data/chromadb
+
+# Create non-root user for security
+RUN useradd --create-home --shell /bin/bash faultmaven && \
+    chown -R faultmaven:faultmaven /app
+USER faultmaven
+
+# Expose unified port
+EXPOSE 8090
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8090/health || exit 1
+
+# Run the unified application
+# FastAPI will serve both API endpoints and static dashboard files
+CMD ["uvicorn", "faultmaven.app:app", "--host", "0.0.0.0", "--port", "8090"]

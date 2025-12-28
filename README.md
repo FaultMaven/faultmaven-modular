@@ -14,30 +14,29 @@ FaultMaven correlates your live telemetry with your runbooks, docs, and past fix
 
 ## 🚀 Quick Start
 
+Deploy FaultMaven Core locally with Docker in 4 simple steps.
+
 ### Prerequisites
 
-- **Python 3.11+**
-- **Docker** (for Redis and ChromaDB)
-- **LLM API Key** (OpenAI, Anthropic, or other supported providers)
+- **Docker & Docker Compose** installed
+- **LLM API Key** (OpenAI, Anthropic, or other [supported providers](#supported-llm-providers))
 
-### Installation
-
-#### Option 1: Docker (Recommended)
+### Option 1: Docker (Recommended)
 
 ```bash
-# Clone repository
+# 1. Clone repository
 git clone https://github.com/FaultMaven/faultmaven.git
 cd faultmaven
 
-# Configure environment
+# 2. Configure environment
 cp .env.example .env
-# Edit .env with your LLM provider API key
+# Edit .env and add your OPENAI_API_KEY or ANTHROPIC_API_KEY
 
-# Start entire stack (backend, dashboard, Redis, ChromaDB)
-docker-compose up -d
+# 3. Start the platform
+docker compose up -d
 
-# Initialize database (run once)
-docker-compose exec faultmaven-backend alembic upgrade head
+# 4. Initialize database (first time only)
+docker compose exec faultmaven-backend alembic upgrade head
 ```
 
 **Access Points:**
@@ -46,47 +45,12 @@ docker-compose exec faultmaven-backend alembic upgrade head
 - **API Docs**: http://localhost:8000/docs - Interactive API documentation
 - **Health Check**: http://localhost:8000/health - Service health status
 
-#### Option 2: Local Development
+> **Production deployment?** See [Deployment Guide](docs/operations/deployment.md)
+> **Contributing or local development?** See [Development Setup](docs/development/setup.md)
 
-```bash
-# Clone repository
-git clone https://github.com/FaultMaven/faultmaven.git
-cd faultmaven
+### Option 2: Local Development
 
-# Set up Python environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install -e .
-
-# Configure environment
-cp .env.example .env
-# Edit .env with your LLM provider API key
-
-# Start infrastructure only (Redis, ChromaDB)
-docker-compose up -d redis chromadb
-
-# Initialize database
-alembic upgrade head
-
-# Run backend
-uvicorn faultmaven.app:app --reload --port 8000
-
-# In another terminal: Run dashboard (optional)
-cd dashboard
-pnpm install
-pnpm dev
-```
-
-**Access Points:**
-- **API**: http://localhost:8000
-- **Dashboard (dev)**: http://localhost:5173
-- **Interactive API Docs**: http://localhost:8000/docs
-- **Health Check**: http://localhost:8000/health
-
-**Next Steps:**
-
-- See [Development Setup](docs/development/setup.md) for detailed setup
-- Check [Deployment Guide](docs/operations/deployment.md) for production deployment
+For running from source code with hot-reload, see the complete [Development Setup Guide](docs/development/setup.md).
 
 ---
 
@@ -139,26 +103,34 @@ FaultMaven supports **7 LLM providers** with automatic fallback:
 FaultMaven is built as a **modular monolith** - a single codebase organized into well-defined modules with clear boundaries.
 
 ```
-┌─────────────────────────────────────────────────────┐
-│         Browser Extension / Dashboard                │
-└────────────────────┬────────────────────────────────┘
-                     │ HTTPS
-                     ▼
-┌─────────────────────────────────────────────────────┐
-│              FaultMaven Monolith (8000)              │
-│                                                       │
-│  ┌───────────────────────────────────────────────┐  │
-│  │              Module Layer                      │  │
-│  ├───────┬────────┬──────┬────────┬────────┬─────┤  │
-│  │ Auth  │Session │ Case │Evidence│Knowledge│Agent│  │
-│  └───────┴────────┴──────┴────────┴────────┴─────┘  │
-│  ┌───────────────────────────────────────────────┐  │
-│  │     Shared Infrastructure (Providers/ORM)     │  │
-│  └───────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│            Browser Extension / Dashboard                 │
+└─────────────────────────┬────────────────────────────────┘
+                          │ HTTPS
+                          ▼
+┌──────────────────────────────────────────────────────────┐
+│              FaultMaven Monolith (8000)                   │
+│                                                            │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │              Module Layer (7 modules)              │  │
+│  ├──────┬───────┬──────┬────────┬─────────┬──────────┤  │
+│  │ Auth │Session│ Case │Evidence│Knowledge│Agent│Report│  │
+│  └──────┴───────┴──────┴────────┴─────────┴──────────┘  │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │      Shared Infrastructure (Providers/ORM)         │  │
+│  └────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────┘
+         │                    │                    │
+         ▼                    ▼                    ▼
+    ┌────────┐          ┌─────────┐         ┌──────────┐
+    │ Redis  │          │ChromaDB │         │ SQLite/  │
+    │(Cache) │          │(Vectors)│         │PostgreSQL│
+    └────────┘          └─────────┘         └──────────┘
 ```
 
 ### Modules
+
+FaultMaven is organized into **7 domain modules** with clear boundaries:
 
 - **Auth** - User authentication and authorization (JWT)
 - **Session** - Multi-session management with client-based resumption
@@ -166,6 +138,7 @@ FaultMaven is built as a **modular monolith** - a single codebase organized into
 - **Evidence** - File upload and evidence management
 - **Knowledge** - Knowledge base with semantic search (RAG)
 - **Agent** - AI agent orchestration with multi-turn conversations
+- **Report** - Case closure documentation and report generation
 
 See [architecture/](docs/architecture/) for detailed architecture documentation.
 
@@ -222,14 +195,15 @@ For detailed status, see [investigation-framework-status.md](docs/working/invest
 ```
 faultmaven/                  # Single repository - true monolith
 ├── src/faultmaven/          # Backend application
-│   ├── modules/             # 6 domain modules
+│   ├── modules/             # 7 domain modules
 │   │   ├── auth/           # Authentication
 │   │   ├── session/        # Session management
 │   │   ├── case/           # Investigation management
 │   │   │   └── engines/    # Investigation framework
 │   │   ├── evidence/       # File upload
 │   │   ├── knowledge/      # Knowledge base (RAG)
-│   │   └── agent/          # AI agent orchestration
+│   │   ├── agent/          # AI agent orchestration
+│   │   └── report/         # Report generation
 │   ├── providers/          # Infrastructure abstractions
 │   ├── infrastructure/     # Redis, in-memory implementations
 │   ├── app.py             # FastAPI application

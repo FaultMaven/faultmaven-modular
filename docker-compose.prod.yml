@@ -1,0 +1,123 @@
+# ==============================================================================
+# FaultMaven Production Docker Compose
+# ==============================================================================
+# This is the PRODUCTION deployment configuration with:
+# - Single unified container (backend + frontend)
+# - Redis for caching and session storage
+# - ChromaDB for vector search
+#
+# Total: 3 containers (was 4 in development mode)
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  # ==============================================================================
+  # FaultMaven Core - Unified Monolith (Backend + Dashboard)
+  # ==============================================================================
+  faultmaven:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+      args:
+        - DOCKER_BUILDKIT=1
+      # Use production .dockerignore to include dashboard/ and README.md
+      # Note: Docker doesn't support specifying dockerignore in compose,
+      # so we'll use a symlink or rename approach
+    image: faultmaven/core:latest
+    container_name: faultmaven-core
+    ports:
+      - "8090:8090"  # Single unified port for both API and Dashboard
+    environment:
+      # Application
+      - HOST=0.0.0.0
+      - PORT=8090
+      - DEBUG=false
+      - LOG_LEVEL=INFO
+
+      # Database (SQLite by default, override with PostgreSQL in .env for production)
+      - DATABASE_URL=sqlite+aiosqlite:///app/data/faultmaven.db
+
+      # Redis
+      - REDIS_URL=redis://redis:6379/0
+
+      # ChromaDB
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - CHROMA_PERSIST_DIR=/app/data/chromadb
+
+      # File Storage
+      - FILE_STORAGE_PATH=/app/data/files
+    env_file:
+      - .env  # Load LLM API keys and other secrets
+    volumes:
+      # Persist data across container restarts
+      - ./data:/app/data
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+      chromadb:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - faultmaven-network
+
+  # ==============================================================================
+  # Redis - Session Storage and Caching
+  # ==============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: faultmaven-redis
+    ports:
+      - "127.0.0.1:6379:6379"  # Bind to localhost only for security
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    networks:
+      - faultmaven-network
+
+  # ==============================================================================
+  # ChromaDB - Vector Database for Knowledge Base
+  # ==============================================================================
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: faultmaven-chromadb
+    ports:
+      - "127.0.0.1:8001:8000"  # Bind to localhost only for security
+    environment:
+      - ANONYMIZED_TELEMETRY=False
+      - ALLOW_RESET=True
+      - IS_PERSISTENT=TRUE
+    volumes:
+      - chromadb-data:/chroma/chroma
+    restart: unless-stopped
+    networks:
+      - faultmaven-network
+
+# ==============================================================================
+# Volumes for Data Persistence
+# ==============================================================================
+volumes:
+  redis-data:
+    driver: local
+  chromadb-data:
+    driver: local
+
+# ==============================================================================
+# Network
+# ==============================================================================
+networks:
+  faultmaven-network:
+    driver: bridge

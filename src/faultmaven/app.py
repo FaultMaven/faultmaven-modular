@@ -7,9 +7,12 @@ Main application entry point that assembles all module routers.
 import os
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from redis.asyncio import Redis
 
 # Import all models to register them with SQLAlchemy
@@ -148,14 +151,57 @@ def create_app(enable_lifespan: bool = True) -> FastAPI:
     app.include_router(report_router)
     app.include_router(agent_router)
 
-    # Root health check
-    @app.get("/")
-    async def root():
-        return {
-            "service": "faultmaven",
-            "status": "healthy",
-            "version": "0.1.0"
-        }
+    # ==========================================
+    # Static File Serving (Production Mode)
+    # ==========================================
+    # In production, the dashboard is bundled into /app/static via multi-stage Dockerfile.
+    # This allows the backend to serve both API and frontend from a single container.
+    #
+    # In development mode, the static directory won't exist, so we skip mounting it.
+    # The dashboard runs separately on port 5173 (Vite dev server).
+
+    static_dir = Path("/app/static")  # Production path from Dockerfile
+    if static_dir.exists() and static_dir.is_dir():
+        logger.info(f"📁 Mounting static files from {static_dir}")
+
+        # Mount static assets (JS, CSS, images)
+        app.mount(
+            "/assets",
+            StaticFiles(directory=str(static_dir / "assets")),
+            name="assets"
+        )
+
+        # Serve index.html for root and all non-API routes (SPA routing)
+        @app.get("/{full_path:path}")
+        async def serve_dashboard(full_path: str):
+            """
+            Serve the React dashboard for all non-API routes.
+
+            This enables client-side routing for the SPA.
+            API routes are matched first due to router precedence.
+            """
+            # If the path exists as a file in static dir, serve it
+            file_path = static_dir / full_path
+            if file_path.exists() and file_path.is_file():
+                return FileResponse(file_path)
+
+            # Otherwise, serve index.html (SPA entry point)
+            return FileResponse(static_dir / "index.html")
+
+        logger.info("✅ Static file serving enabled (production mode)")
+    else:
+        logger.info("📝 Static files not found - running in development mode")
+        logger.info("   Dashboard should be run separately: cd dashboard && pnpm dev")
+
+        # Root health check (only used in dev mode)
+        @app.get("/")
+        async def root():
+            return {
+                "service": "faultmaven",
+                "status": "healthy",
+                "version": "0.1.0",
+                "mode": "development"
+            }
 
     @app.get("/health")
     async def health_check():
