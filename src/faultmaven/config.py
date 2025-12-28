@@ -6,7 +6,18 @@ Validates required environment variables on startup to provide clear error messa
 
 import os
 import sys
+from pathlib import Path
 from typing import Optional
+
+# Ensure .env is loaded before validation
+from dotenv import load_dotenv
+
+# Find and load .env file from project root
+# This handles cases where the script is run from different directories
+project_root = Path(__file__).parent.parent.parent
+env_file = project_root / ".env"
+if env_file.exists():
+    load_dotenv(env_file)
 
 
 class ConfigurationError(Exception):
