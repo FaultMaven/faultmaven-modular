@@ -1,0 +1,141 @@
+# ==============================================================================
+# Docker Compose Override - Resource Limits & Customization
+# ==============================================================================
+# This file allows you to customize FaultMaven without modifying docker-compose.yml
+#
+# USAGE:
+#   cp docker-compose.override.yml.example docker-compose.override.yml
+#   Edit docker-compose.override.yml to customize settings
+#   Docker Compose will automatically merge it with docker-compose.yml
+#
+# WHY USE THIS:
+#   - Prevents resource exhaustion on limited-RAM systems
+#   - Customize ports if defaults conflict with other services
+#   - Add additional volumes or environment variables
+#   - Changes persist across git pulls (override.yml is in .gitignore)
+#
+# TECHNICAL DETAILS:
+#   - mem_limit: Hard cap enforced by Docker (OOM kill if exceeded)
+#   - mem_reservation: Soft limit (guaranteed minimum allocation)
+#   - cpus: Maximum CPU cores (throttled if exceeded, not killed)
+
+# ==============================================================================
+# Development Mode (docker-compose.yml)
+# ==============================================================================
+
+services:
+  # FaultMaven Backend - Monolith API + LLM integration
+  faultmaven-backend:
+    mem_limit: 2048m        # Hard limit: 2GB RAM (OOM kill at 100%)
+    mem_reservation: 1024m  # Soft limit: 1GB guaranteed minimum
+    cpus: 2.0               # Max 2 CPU cores
+
+    # Uncomment to change API port (if 8000 conflicts)
+    # ports:
+    #   - "8080:8000"
+
+    # Uncomment to add custom environment variables
+    # environment:
+    #   - DEBUG=true
+    #   - LOG_LEVEL=DEBUG
+
+  # Dashboard - React/Vite frontend
+  faultmaven-dashboard:
+    mem_limit: 512m         # Hard limit: 512MB RAM
+    mem_reservation: 256m   # Soft limit: 256MB guaranteed minimum
+    cpus: 0.5               # Max 0.5 CPU cores
+
+    # Uncomment to change dashboard port (if 3000 conflicts)
+    # ports:
+    #   - "3001:3000"
+
+  # ChromaDB - Vector database
+  chromadb:
+    mem_limit: 1024m        # Hard limit: 1GB RAM
+    mem_reservation: 512m   # Soft limit: 512MB guaranteed minimum
+    cpus: 0.5               # Max 0.5 CPU cores
+
+    # Uncomment to change ChromaDB port (if 8001 conflicts)
+    # ports:
+    #   - "127.0.0.1:8002:8000"
+
+  # Redis - Session store and cache (lightweight)
+  redis:
+    mem_limit: 512m         # Hard limit: 512MB RAM
+    mem_reservation: 256m   # Soft limit: 256MB guaranteed minimum
+    cpus: 0.25              # Max 0.25 CPU cores
+
+    # Uncomment to change Redis port (if 6379 conflicts)
+    # ports:
+    #   - "127.0.0.1:6380:6379"
+
+# ==============================================================================
+# RESOURCE TUNING GUIDE
+# ==============================================================================
+#
+# For systems with 16GB+ RAM (increase limits):
+#   faultmaven-backend:
+#     mem_limit: 4096m      # 4GB instead of 2GB
+#     cpus: 4.0             # 4 cores instead of 2
+#
+#   chromadb:
+#     mem_limit: 2048m      # 2GB instead of 1GB
+#     cpus: 1.0             # 1 core instead of 0.5
+#
+# For systems with 8GB RAM (decrease limits):
+#   faultmaven-backend:
+#     mem_limit: 1024m      # 1GB instead of 2GB
+#     cpus: 1.0             # 1 core instead of 2
+#
+# ==============================================================================
+# WHAT HAPPENS WHEN LIMITS ARE EXCEEDED
+# ==============================================================================
+#
+# Memory (mem_limit):
+#   90-95%: Container slows down (garbage collection thrashes)
+#   100%:   Docker OOM Killer terminates container
+#   Result: Container automatically restarts
+#   Impact: Active requests fail, 10-30 second recovery time
+#
+# CPU (cpus):
+#   100%:   Process gets throttled (paused periodically)
+#   Result: Container keeps running but slower
+#   Impact: Requests take longer but don't fail
+#
+# ==============================================================================
+# MONITORING
+# ==============================================================================
+#
+# Check resource usage:
+#   docker stats
+#
+# Check if OOM killed:
+#   docker inspect faultmaven-backend | grep OOMKilled
+#
+# View restart count:
+#   docker ps
+#
+# ==============================================================================
+# PRODUCTION MODE OVERRIDE (docker-compose.prod.yml)
+# ==============================================================================
+#
+# To override production settings, uncomment and customize:
+#
+# version: '3.8'
+# services:
+#   faultmaven:
+#     mem_limit: 4096m      # 4GB for unified container
+#     mem_reservation: 2048m
+#     cpus: 4.0
+#
+#     # Uncomment to change production port
+#     # ports:
+#     #   - "9090:8090"
+#
+#   redis:
+#     mem_limit: 512m
+#     cpus: 0.25
+#
+#   chromadb:
+#     mem_limit: 1024m
+#     cpus: 0.5
