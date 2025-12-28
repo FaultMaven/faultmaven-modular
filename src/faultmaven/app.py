@@ -31,7 +31,8 @@ from faultmaven.modules.evidence.router import router as evidence_router
 from faultmaven.modules.knowledge.router import router as knowledge_router
 from faultmaven.modules.report.router import router as report_router
 
-from faultmaven.providers.core import CoreLLMProvider, CoreDataProvider, CoreFileProvider
+from faultmaven.providers.core import CoreDataProvider, CoreFileProvider
+from faultmaven.providers.factory import create_llm_provider
 from faultmaven.providers.vectors.chromadb import ChromaDBProvider
 from faultmaven.config import validate_required_configuration, ConfigurationError
 
@@ -92,9 +93,10 @@ async def lifespan(app: FastAPI):
 
         # 4. Initialize LLM Provider
         logger.info("Initializing LLM Provider...")
-        llm_provider = CoreLLMProvider()
+        llm_provider = create_llm_provider()
         app.state.llm_provider = llm_provider
-        logger.info("✅ LLM Provider initialized")
+        provider_name = os.getenv("LLM_PROVIDER", "unknown")
+        logger.info(f"✅ LLM Provider initialized ({provider_name})")
 
         # 5. Initialize Vector Provider (ChromaDB) - SLOW OPERATION
         logger.info("Initializing Vector Provider (ChromaDB)...")

@@ -3,7 +3,7 @@ services:
   faultmaven-backend:
     build:
       context: ../..
-      dockerfile: Dockerfile
+      dockerfile: deploy/docker/Dockerfile
     container_name: faultmaven-backend
     ports:
       - "8000:8000"
