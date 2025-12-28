@@ -53,16 +53,15 @@ pip install -e ".[dev]"       # Install dev dependencies (pytest, ruff, etc.)
 Start Redis and ChromaDB using Docker Compose:
 
 ```bash
-# Option 1: Use provided docker-compose.yml
-docker-compose up -d redis chromadb
-
-# Option 2: Infrastructure only
-docker-compose -f docker-compose.infra.yml up -d
+# Start only infrastructure services (backend runs locally)
+docker compose up -d redis chromadb
 ```
 
 **Services started**:
 - Redis: `localhost:6379` (sessions, cache)
-- ChromaDB: `localhost:8000` (vector store)
+- ChromaDB: `localhost:8001` (vector store)
+
+**Note**: The backend application will run locally via uvicorn in the next step, not in Docker.
 
 ### 4. Configure Environment
 
@@ -92,7 +91,7 @@ REDIS_PORT=6379
 
 # ChromaDB (vectors)
 CHROMA_HOST=localhost
-CHROMA_PORT=8000
+CHROMA_PORT=8001
 ```
 
 ### 5. Initialize Database
