@@ -60,6 +60,12 @@ services:
     volumes:
       - chromadb-data:/chroma/chroma
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/localhost/8000' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   # FaultMaven Dashboard - Web UI for knowledge base management
   faultmaven-dashboard:

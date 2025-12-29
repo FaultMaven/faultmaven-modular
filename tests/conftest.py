@@ -19,6 +19,15 @@ from faultmaven.app import create_app
 from faultmaven.database import Base
 from faultmaven.dependencies import get_cache
 
+# Import all ORM models to register them with Base.metadata
+# This ensures all tables are created when Base.metadata.create_all() is called
+from faultmaven.modules.auth.orm import User  # noqa: F401
+from faultmaven.modules.case.orm import Case, Hypothesis, Solution, CaseMessage  # noqa: F401
+from faultmaven.modules.evidence.orm import Evidence  # noqa: F401
+from faultmaven.modules.knowledge.orm import Document, SearchQuery  # noqa: F401
+from faultmaven.modules.report.orm import CaseReport  # noqa: F401
+from faultmaven.modules.session.orm import SessionAudit  # noqa: F401
+
 # ==========================================
 # 0. Test Environment Setup
 # ==========================================
