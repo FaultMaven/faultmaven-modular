@@ -1,3 +1,29 @@
+> # ⚠️ This repository is not FaultMaven
+>
+> **The FaultMaven engine lives at [FaultMaven/faultmaven](https://github.com/FaultMaven/faultmaven).** Go there.
+>
+> This repository has not been touched since December 2025 and is kept only for
+> reference. Everything below it is out of date, and three things on this page
+> are now actively wrong:
+>
+> - **The license.** The engine ships under **FSL-1.1-ALv2** (fair source,
+>   converting to Apache-2.0 two years after each release), not the Apache-2.0
+>   badge below.
+> - **The description.** FaultMaven reads **no live telemetry** — it has no
+>   agents and no credentials in your systems. It works from the logs, metrics
+>   and configs *you* share. That claim was retired from every other surface.
+> - **The numbers.** The test and coverage badges are from December 2025.
+>
+> **Where to go instead:**
+>
+> | | |
+> |---|---|
+> | Run it yourself | [FaultMaven/faultmaven](https://github.com/FaultMaven/faultmaven#quick-start) — free, fair source |
+> | Let us run it | [app.faultmaven.ai](https://app.faultmaven.ai/) — Cloud beta is open, free while it is in beta |
+> | Just look | [A real investigation, unedited](https://www.faultmaven.ai/investigation) |
+
+---
+
 # FaultMaven
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
