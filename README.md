@@ -3,16 +3,23 @@
 > **The FaultMaven engine lives at [FaultMaven/faultmaven](https://github.com/FaultMaven/faultmaven).** Go there.
 >
 > This repository has not been touched since December 2025 and is kept only for
-> reference. Everything below it is out of date, and three things on this page
-> are now actively wrong:
+> reference. Everything below it describes that snapshot, and two claims on
+> this page are wrong about FaultMaven today:
 >
-> - **The license.** The engine ships under **FSL-1.1-ALv2** (fair source,
->   converting to Apache-2.0 two years after each release), not the Apache-2.0
->   badge below.
 > - **The description.** FaultMaven reads **no live telemetry** — it has no
 >   agents and no credentials in your systems. It works from the logs, metrics
 >   and configs *you* share. That claim was retired from every other surface.
-> - **The numbers.** The test and coverage badges are from December 2025.
+>   The headline's "for SRE and DevOps Teams" was narrowed for the same reason:
+>   FaultMaven is for engineers generally.
+> - **The numbers.** The test and coverage badges are from December 2025 and
+>   describe a codebase that has since been superseded.
+>
+> **The licence below is genuine and still applies to this snapshot.** The code
+> in this repository is Apache-2.0 and that grant is irrevocable — reuse it on
+> those terms. It is only worth flagging because the *engine* is licensed
+> differently: [FaultMaven/faultmaven](https://github.com/FaultMaven/faultmaven)
+> ships under FSL-1.1-ALv2 (fair source, converting to Apache-2.0 two years
+> after each release), so do not read this badge as describing that.
 >
 > **Where to go instead:**
 >
